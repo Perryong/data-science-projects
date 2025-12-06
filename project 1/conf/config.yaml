@@ -1,0 +1,65 @@
+# Master configuration file for stock prediction project
+
+data:
+  # Data source: 'yfinance' or 'file'
+  source: yfinance
+  
+  # If source is 'yfinance', specify:
+  ticker: AAPL
+  start_date: 2024-01-01
+  end_date: 2025-12-01
+  
+  # If source is 'file', specify:
+  # file_path: data/raw/stock_data.csv
+  
+  # Rate limit handling
+  use_cache: true  # If true, use cached data if rate limit is encountered
+  cache_dir: data/raw  # Directory for cached data files
+  
+  # Data cleaning options
+  missing_values_method: forward_fill  # drop, forward_fill, backward_fill, interpolate
+  remove_outliers: false
+  outlier_method: iqr  # iqr or zscore
+  outlier_columns:
+    - Close
+    - Volume
+
+features:
+  # List of features to create (if None, creates all available)
+  feature_list:
+    - sma_short
+    - sma_long
+    - ema_short
+    - ema_long
+    - rsi
+    - macd
+    - macd_signal
+    - macd_hist
+    - bb_upper
+    - bb_middle
+    - bb_lower
+    - price_change
+    - price_change_pct
+    - volume_change
+    - volume_change_pct
+    - high_low_ratio
+    - close_open_ratio
+
+model:
+  # Model type: 'random_forest', 'gradient_boosting', 'linear_regression'
+  model_type: random_forest
+  
+  # Target variable configuration
+  target_type: next_day_close  # next_day_close, next_day_return, direction
+  prediction_horizon: 1  # Number of days ahead to predict
+  
+  # Training configuration
+  test_size: 0.2
+  random_state: 42
+  
+  # Hyperparameters (model-specific)
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+

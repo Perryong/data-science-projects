@@ -1,0 +1,22 @@
+# Hyperparameters configuration file
+# Model-specific parameters can be overridden here
+
+random_forest:
+  n_estimators: 100
+  max_depth: 10
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
+
+gradient_boosting:
+  n_estimators: 100
+  learning_rate: 0.1
+  max_depth: 3
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
+
+linear_regression:
+  fit_intercept: true
+  normalize: false
+
