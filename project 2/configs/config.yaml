@@ -1,0 +1,74 @@
+# Food Delivery Route Efficiency Analysis Configuration
+
+# Data paths
+data:
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  models_path: "data/models"
+  input_file: "Food_Delivery_Route_Efficiency_Dataset.csv"
+
+# Preprocessing settings
+preprocessing:
+  datetime_column: "order_time"
+  target_column: "delivery_time_min"
+  numeric_columns:
+    - "distance_km"
+    - "delivery_time_min"
+    - "route_length_km"
+  categorical_columns:
+    - "traffic_level"
+    - "delivery_mode"
+    - "weather"
+    - "restaurant_zone"
+    - "customer_zone"
+  feature_columns:
+    - "distance_km"
+    - "route_length_km"
+    - "hour"
+    - "day_of_week"
+    - "is_weekend"
+    - "traffic_level"
+    - "delivery_mode"
+    - "weather"
+    - "restaurant_zone"
+    - "customer_zone"
+  missing_value_strategy: "mean"  # mean, median, mode, drop
+  outlier_removal: true
+  outlier_method: "iqr"  # iqr, zscore
+  outlier_factor: 1.5
+  scale_features: false
+  encode_categorical: true
+
+# Model training settings
+modeling:
+  test_size: 0.2
+  random_state: 42
+  cv_folds: 5
+  models:
+    - "linear_regression"
+    - "ridge"
+    - "lasso"
+    - "decision_tree"
+    - "random_forest"
+    - "gradient_boosting"
+  hyperparameter_tuning: false
+  save_models: true
+
+# Visualization settings
+visualization:
+  output_dir: "outputs/figures"
+  figure_format: "png"
+  figure_dpi: 300
+  style: "whitegrid"
+
+# Logging settings
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_file: "outputs/reports/training.log"
+
+# Output settings
+outputs:
+  figures_dir: "outputs/figures"
+  reports_dir: "outputs/reports"
+  models_dir: "data/models"
+
