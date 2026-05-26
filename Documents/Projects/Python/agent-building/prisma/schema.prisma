@@ -1,0 +1,128 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum SupplierCode {
+  POLYTAINER
+  SSS
+  DDW
+}
+
+enum DocumentType {
+  INVOICE
+  PACK_SLIP
+  COA
+  DELIVERY_DOCKET
+}
+
+enum DocumentStatus {
+  PENDING
+  EXTRACTING
+  EXTRACTED
+  NEEDS_REVIEW
+  APPROVED
+  FAILED
+}
+
+enum Confidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ExportFormat {
+  CSV
+  JSON
+}
+
+model Supplier {
+  id        Int              @id @default(autoincrement())
+  name      String
+  code      SupplierCode     @unique
+  createdAt DateTime         @default(now())
+  documents InvoiceDocument[]
+  shipments ShipmentRecord[]
+}
+
+model InvoiceDocument {
+  id               Int             @id @default(autoincrement())
+  supplierId       Int?
+  supplier         Supplier?       @relation(fields: [supplierId], references: [id])
+  shipmentRecordId Int?
+  shipmentRecord   ShipmentRecord? @relation(fields: [shipmentRecordId], references: [id])
+  documentType     DocumentType?
+  status           DocumentStatus  @default(PENDING)
+  poNumber         String?
+  orderNumber      String?
+  fileUrl          String
+  originalFilename String
+  fileHash         String          @unique
+  extractionError  String?
+  extractedAt      DateTime?
+  approvedAt       DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  fields           ExtractedField[]
+  analyticalResults AnalyticalResult[]
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([fileHash])
+  @@index([poNumber, orderNumber])
+}
+
+model ExtractedField {
+  id                Int             @id @default(autoincrement())
+  invoiceDocumentId Int
+  document          InvoiceDocument @relation(fields: [invoiceDocumentId], references: [id], onDelete: Cascade)
+  fieldName         String
+  fieldValue        String?
+  confidence        Confidence      @default(LOW)
+  correctedValue    String?
+  isCorrected       Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([invoiceDocumentId, fieldName])
+  @@index([invoiceDocumentId])
+}
+
+model AnalyticalResult {
+  id                Int             @id @default(autoincrement())
+  invoiceDocumentId Int
+  document          InvoiceDocument @relation(fields: [invoiceDocumentId], references: [id], onDelete: Cascade)
+  testId            String
+  minValue          String?
+  maxValue          String?
+  testedValue       String?
+  rowIndex          Int
+  createdAt         DateTime        @default(now())
+
+  @@index([invoiceDocumentId])
+}
+
+model ShipmentRecord {
+  id          Int               @id @default(autoincrement())
+  poNumber    String
+  orderNumber String
+  supplierId  Int
+  supplier    Supplier          @relation(fields: [supplierId], references: [id])
+  createdAt   DateTime          @default(now())
+  documents   InvoiceDocument[]
+
+  @@unique([poNumber, orderNumber])
+  @@index([supplierId])
+}
+
+model ExportLog {
+  id         Int          @id @default(autoincrement())
+  exportedAt DateTime     @default(now())
+  exportedBy String?
+  format     ExportFormat
+  recordIds  Int[]
+}
